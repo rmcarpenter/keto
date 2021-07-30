@@ -1,0 +1,145 @@
+---
+title: "Bagels and Rice and Brioche OH MY... Ryan and Meaghan's Keto Experiment (n=2) "
+author: 
+date: "3/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(plotly)
+library(dplyr)
+```
+
+### Data Structure 
+
+```{r cars, warning=FALSE, echo=FALSE}
+keto = read.csv("KETOexp1.csv")
+head(keto)
+
+```
+
+
+
+
+```{r , echo=FALSE,include=FALSE}
+hline <- function(y = 0, color = "green") {
+  list(
+    type = "line", 
+    x0 = 0, 
+    x1 = 1, 
+    xref = "paper",
+    y0 = y, 
+    y1 = y, 
+    line = list(color = color)
+  ) }
+
+hline2 <- function(y = 0, color = "orange") {
+  list(
+    type = "line", 
+    x0 = 0, 
+    x1 = 1, 
+    xref = "paper",
+    y0 = y, 
+    y1 = y, 
+    line = list(color = color)
+  ) }
+
+
+
+fig = keto %>% 
+  plot_ly(x = ~Day, hoverinfo = "text",
+          text = ~paste('</br> Carbohydrates: ', Ryan.Carb,
+                        '</br> Protein: ', Ryan.protein,                                                          
+                        '</br> Fat: ', Ryan.fat )) %>% 
+  add_bars(y = ~Ryan.fat,
+           name = "Fat (g)") %>% 
+  add_bars(y = ~Ryan.protein,
+           name = "Protein (g)") %>%
+  add_bars(y = ~Ryan.Carb,
+           name = "Carb (g)")  %>% 
+  layout(yaxis = list(title = 'Quantity of Macros (g)'),
+         title = "Ryan's Macros over time",
+         shapes = list(hline(50)),
+         shapes = list(hline2(120)))
+
+  
+
+```
+
+
+```{r,warning=FALSE}
+fig
+```
+
+
+
+
+```{r, include=FALSE,echo=FALSE}
+
+fig2 = keto %>% 
+  plot_ly(x = ~Day ) %>% 
+  add_trace(y = ~Ryan.weight,
+           name = "Ryan's mass (lbs)",
+           mode = 'lines+markers', connectgaps = TRUE) %>% 
+  add_trace(y = ~Meag.weight,
+           name = "Meaghan's mass (lbs)",
+           mode = 'lines+markers', connectgaps = TRUE) %>%
+  layout(yaxis = list(title = 'Mass (lbs)'),
+         title = "Weight Over Time") 
+
+  
+
+
+
+
+```
+
+
+```{r, warning=FALSE, echo=FALSE}
+fig2
+```
+
+
+
+
+```{r, echo=FALSE,warning=FALSE,include=FALSE}
+library(tidyr)
+gluc.keto = keto %>% 
+  select(Ryan.glucose,Ryan.ketone,
+         Meag.glucose,Meag.ketone) %>%  
+  na.omit()
+
+gluc.keto = gluc.keto %>% relocate(Meag.glucose, .after=Ryan.glucose)
+
+gluc.keto = gluc.keto %>% gather(Glucose, gluc.value, 1:2) 
+
+gluc.keto = gluc.keto %>% gather(Ketone, keto.value, 1:2)
+
+gluc.keto1 = gluc.keto[c(1:4),] 
+gluc.keto2 = gluc.keto[c(13:16),]   
+
+gluc.keto = rbind(gluc.keto1,gluc.keto2)
+                      
+
+fig3 <- plot_ly(data = gluc.keto, x = ~gluc.value, y = ~keto.value, 
+               color = ~Ketone,
+               marker = list(size = 10,width = 2)) %>% 
+      layout(yaxis = list (title = 'Ketone level (mmol/L)'),
+             xaxis = list (title = "Glucose Value (mg/dL)"),
+             title = "Plasma Glucose and Ketones using Keto Mojo Meter")
+        
+ 
+
+
+
+```
+
+
+
+```{r, warning=FALSE,echo=FALSE}
+fig3
+```
+
+
+
